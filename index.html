@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="node_modules/bootstrap/dist/css/bootstrap.css">
+    <link rel="stylesheet" href="fonts.css">
+    <link rel="stylesheet" href="ebi-global.css">
+    <title>TFG Carlos</title>
+  </head>
+  <body>
+    <header>
+      <nav class="navbar navbar-dark bg-dark">
+<a class="navbar-brand" href="#">TFG Carlos</a>
+<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+  <span class="navbar-toggler-icon"></span>
+</button>
+<div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+  <div class="navbar-nav">
+    <a class="nav-item nav-link active" href="#">Home <span class="sr-only">(current)</span></a>
+    <a class="nav-item nav-link" href="./about.html">About</a>
+    <a class="nav-item nav-link" href="#">RNA-seq to VCF</a>
+    <a class="nav-item nav-link" href="#">VCF to binding predictions</a>
+    <a class="nav-item nav-link disabled" href="#">Disabled</a>
+  </div>
+  </div>
+</nav>
+    </header>
+<main role="main" class="ml-sm-auto pt-3">
+    <h1><center>Tumor-Normal Paired Analysis</center></h1>
+    <div id="content1">
+    <p1>Cancer:</p1>
+    <input class="form-control" id='text_first' type="text" placeholder="Cancer .fastq" readonly></input>
+    <button  type="button"  id='first' class="btn btn-outline-primary btn-sm" onclick="fileDialog(this)">Send File</button>
+    </div>
+    <br>
+    <div id="content2">
+    <p1>Healthy:</p1>
+    <input class="form-control" id='text_second' type="text" placeholder="Healthy .fastq" readonly></input>
+    <button  type="button"  id='second' class="btn btn-outline-primary btn-sm" onclick="fileDialog(this)">Send File</button>
+    </div>
+    <br>
+    <div id="content3">
+    <p1>E-mail:</p1>
+    <input class="form-control" id='text_third' type="text" placeholder="yourname@email.com" readonly></input>
+    <button  type="button"  id='third' class="btn btn-outline-success btn-sm">Accept</button>
+    </div>
+    <div id="content4">
+      <center>
+      <div class="btn-group">
+        <button type="button" class="btn btn-secondary">H-2 Type</button>
+        <button type="button" class="btn btn-secondary dropdown-toggle dropdown-toggle-split" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <span class="sr-only">Toggle Dropdown</span>
+        </button>
+        <div class="dropdown-menu">
+          <a class="dropdown-item" href="#">Action</a>
+          <a class="dropdown-item" href="#">Another action</a>
+          <a class="dropdown-item" href="#">Something else here</a>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item" href="#">Separated link</a>
+        </div>
+      </div>
+    </center>
+      </div>
+      <br>
+      <section>
+      <div id="content4">
+      <center>
+      <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#ModalCenter" id="modalButton">Send</a>
+      <div class="container">
+        <div class="alert alert-success alert-dismissible fade" role="alert" id="buttonAlert">
+              <strong>Success!</strong> Your files have been sent to GATK MuTect2.
+              <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+        </div>
+    </center>
+  </div>
+  </div>
+</section>
+</main>
+    <script>
+    window.$ = window.jQuery = require('jquery')
+    window.Tether = require('tether')
+    window.Bootstrap = require('bootstrap')
+    var nodeConsole = require('console');
+    const {ipcRenderer} = require('electron')
+          function fileDialog(button){
+             ipcRenderer.send('openFile', () => {
+                console.log("Event sent.");
+             });
+             ipcRenderer.once('fileNames', (event, data) => {
+                document.getElementById('text_'+button.id).value = data;
+             });
+           };
+    $(document).ready(function(){
+      $("#modalButton").click(function(){
+        $("#buttonAlert").addClass('show')
+        });
+      $("#modalButton").click(function(){
+        var child = require('child_process').spawn(
+              'java', ['-jar', '/Users/carloswertcarvajal/Documents/gatk-4.1.0.0/gatk-package-4.1.0.0-local.jar',"Mutect2","-R","/Volumes/Maxtor/References/Mus_musculus/UCSC/mm10/Sequence/WholeGenomeFasta/genome.fa","-I",document.getElementById('text_first').value,"-tumor","","--disable-read-filter","MateOnSameContigOrNoMappedMateReadFilter",
+                 "-O","/Volumes/Maxtor/example.vcf"]
+        );
+      child.stdout.on('data', function(data) {
+      console.log(data.toString());
+      var myConsole = new nodeConsole.Console(process.stdout, process.stderr);
+      myConsole.log(data.toString());
+        });
+
+      child.stderr.on("data", function (data) {
+      console.log(data.toString());
+      var myConsole = new nodeConsole.Console(process.stdout, process.stderr);
+      myConsole.log(data.toString());
+      });
+      });
+      $(".close").click(function(){
+      $("#buttonAlert").alert("close");
+        });
+    });
+    </script>
+  </body>
+</html>
