@@ -32,13 +32,13 @@ def BLOSUMAUG(mat):
             raise Exception('Improper entry number in row')
         for column_name in columns:
             matrix[row_name][column_name] = int(entries.pop(0))
-    for count in range(0,mat.shape[0]):
+    for count in range(mat.shape[0]):
         stringin = mat[count]
         if len(stringin)==12:
             strings.append(stringin)
             probs.append(1)
             stringsin.append(stringin)
-            for num in range(0,len(stringin)):
+            for num in range(len(stringin)):
                 string = list(stringin)
                 char=string[num]
                 #Retrieve the aa with highest similarity
@@ -53,18 +53,23 @@ def BLOSUMAUG(mat):
                 strings.append(string)
                 probs.append(prob)
                 stringsin.append(stringin)
-    augmented = pd.DataFrame({'original':stringsin,'peptide':strings,'probs':probs}).drop_duplicates(subset='peptide').reset_index(drop=True)                   
-    return augmented
+    return (
+        pd.DataFrame(
+            {'original': stringsin, 'peptide': strings, 'probs': probs}
+        )
+        .drop_duplicates(subset='peptide')
+        .reset_index(drop=True)
+    )
 
 def Randompos(mat):
     strings = []
     stringsin = []
     amino_acids = 'ACDEFGHIKLMNPQRSTVWY'
-    for count in range(0,mat.shape[0]):
+    for count in range(mat.shape[0]):
         stringin = mat[count]
         strings.append(stringin)
         stringsin.append(stringin)
-        for num in range(0,len(stringin)):
+        for num in range(len(stringin)):
             string = list(stringin)
             nn = np.random.randint(0,12)
             string[num] = amino_acids[nn]
@@ -72,8 +77,11 @@ def Randompos(mat):
             if string != stringin:
                 strings.append(string)
                 stringsin.append(stringin)
-    augmented = pd.DataFrame({'original':stringsin,'peptide':strings}).drop_duplicates(subset='peptide').reset_index(drop=True)
-    return augmented
+    return (
+        pd.DataFrame({'original': stringsin, 'peptide': strings})
+        .drop_duplicates(subset='peptide')
+        .reset_index(drop=True)
+    )
 
 
 #data=pd.read_csv("/Volumes/Maxtor/testproteins4.csv",delimiter=",")
