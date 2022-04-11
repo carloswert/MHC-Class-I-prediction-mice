@@ -31,9 +31,7 @@ for num in [10,120,300]:
     N_AUG=num 
     P_AUG=0
     def Strings2Embed(array):
-        arr = []
-        for n in range(array.shape[0]): 
-            arr.append(AminoAcidsEmb(array[n]).T)
+        arr = [AminoAcidsEmb(array[n]).T for n in range(array.shape[0])]
         arr=np.dstack(arr).T
         return arr
     
@@ -116,19 +114,14 @@ for num in [10,120,300]:
             Xf = self.X[indices]
             Yf = self.y[indices]
             if self.isaug:
-                for n in range(0,self.naug):
+                for _ in range(self.naug):
                     new_pep, pp = BLOSUMSIM(self.X_Pos[np.random.randint(0,self.X_Pos.shape[0])])
                     Xf = np.append(Xf,new_pep)
-                    if pp>=self.p_aug:
-                        Yf = np.append(Yf,1)
-                    else:
-                        Yf = np.append(Yf,0)
+                    Yf = np.append(Yf,1) if pp>=self.p_aug else np.append(Yf,0)
                 indexx = np.arange(Xf.shape[0])
                 np.random.shuffle(indexx)
                 Xf = Xf[indexx]
                 Yf = Yf[indexx]
-            else:
-                pass
             return to_categorical(np.asarray(tokenizer.texts_to_sequences(Xf)),num_classes=22), Yf
     
     def create_network(neurons=nLSTM,neurons1=nLSTM1,neurons2=nLSTM2):

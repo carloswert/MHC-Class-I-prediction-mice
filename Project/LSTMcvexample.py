@@ -82,16 +82,13 @@ def main():
           '_' :[0.0]*10}
         ls=[]*10
         for item in string:
-            if item in AA_as10Factor.keys():
+            if item in AA_as10Factor:
                 ls = ls+AA_as10Factor.get(item)
-        embedding=np.reshape(np.array(ls),(-1,10))
-        return embedding
+        return np.reshape(np.array(ls),(-1,10))
     #(size of protein, dimensions or 21)
     
     def Strings2Embed(array):
-        arr = []
-        for n in range(array.shape[0]): 
-            arr.append(AminoAcidsEmb(array[n]).T)
+        arr = [AminoAcidsEmb(array[n]).T for n in range(array.shape[0])]
         arr=np.dstack(arr).T
         return arr
     
@@ -174,19 +171,14 @@ def main():
             Xf = self.X[indices]
             Yf = self.y[indices]
             if self.isaug:
-                for n in range(0,self.naug):
+                for _ in range(self.naug):
                     new_pep, pp = BLOSUMSIM(self.X_Pos[np.random.randint(0,self.X_Pos.shape[0])])
                     Xf = np.append(Xf,new_pep)
-                    if pp>=self.p_aug:
-                        Yf = np.append(Yf,1)
-                    else:
-                        Yf = np.append(Yf,0)
+                    Yf = np.append(Yf,1) if pp>=self.p_aug else np.append(Yf,0)
                 indexx = np.arange(Xf.shape[0])
                 np.random.shuffle(indexx)
                 Xf = Xf[indexx]
                 Yf = Yf[indexx]
-            else:
-                pass
             return Strings2Embed(Xf), Yf
     
     def create_network(neurons=nLSTM):
